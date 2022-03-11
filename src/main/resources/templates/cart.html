@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+>
+
+<head>
+
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" type="text/css">
+</head>
+<body>
+<c:set var="total" value="${0}" />
+
+<div class="container-fluid text-center">
+    <div>
+        <h2>Cart</h2>
+    </div>
+
+    <div th:if="${MESSAGE}">
+        <div class="alert alert-info">[[${MESSAGE}]]</div>
+    </div>
+
+    <div th:if="${session.CART ==null or session.CART.getCart().isEmpty()} ">
+        <h2>You haven't choose any product</h2>
+    </div>
+
+    <div th:if="${session.CART !=null} ">
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+            <tr >
+                <th>
+                    <a>ID</a>
+                </th>
+                <th>
+                    <a>Name</a>
+                </th>
+                <th>
+                    <a>Price</a>
+                </th>
+                <th>
+                    <a>Quantity</a>
+                </th>
+                <th></th>
+            </tr>
+
+            </thead>
+            <tbody>
+            <th:block th:each="product:${session.CART.getCart().values()}">
+                <tr>
+                    <td>[[${product.id}]]</td>
+                    <td>[[${product.name}]]</td>
+                    <td>[[${product.price}]]</td>
+                    <td>[[${product.quantity}]]</td>
+                    <td >
+                        <a class="h4 mr-3" th:href="@{'/shopping/delete/'+${product.id}}">
+                            Remove
+                        </a>
+                    </td>
+                </tr>
+            </th:block>
+            </tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <th>Grand total</th>
+                <th>[[${session.TOTAL}]]</th>
+                <td></td>
+            </tr>
+        </table>
+        <div>
+            <a th:href="@{/shopping}">Continue Shopping</a>
+        </div>
+        <div>
+            <form th:action="@{/checkout}">
+                <button class="btn btn-primary">Checkout</button>
+            </form>
+        </div>
+
+    </div>
+
+
+
+
+</div>
+</body>
+</html>

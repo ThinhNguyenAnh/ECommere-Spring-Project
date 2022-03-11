@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+  <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" type="text/css">
+</head>
+<body>
+<div class="container-fluid text-center">
+  <div>
+    <h2>Products</h2>
+  </div>
+  <div>
+    <a th:href="@{/showCart}">Cart</a>
+  </div>
+
+  <div>
+    <table class="table table-bordered">
+      <thead class="thead-dark">
+      <tr >
+        <th>
+          <a>ID</a>
+        </th>
+        <th>
+          <a>Name</a>
+        </th>
+        <th>
+          <a>Price</a>
+        </th>
+        <th>
+          <a>Quantity</a>
+        </th>
+        <th></th>
+      </tr>
+
+      </thead>
+      <tbody>
+      <th:block th:each="product:${session.LIST_PRODUCT}">
+        <tr>
+          <td>[[${product.id}]]</td>
+          <td>[[${product.name}]]</td>
+          <td>[[${product.price}]]</td>
+          <td>[[${product.quantity}]]</td>
+          <td>
+            <a class="h4 mr-3" th:href="@{'/shopping/add/'+${product.id}}">Add to Cart</a>
+<!--            <a class="h4" th:href="@{'/users/delete/'+${user.id}}">Delete</a>-->
+          </td>
+        </tr>
+      </th:block>
+      </tbody>
+    </table>
+  </div>
+
+
+</div>
+</body>
+</html>

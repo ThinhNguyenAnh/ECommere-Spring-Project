@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage users</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" type="text/css">
+</head>
+<body>
+<div class="container-fluid text-center">
+
+    <div>
+        <h2>Manage Users</h2>
+    </div>
+    <div sec:authorize="hasAuthority('ADMIN')">
+        <a class="h3 m-2" th:href="@{/users/new}">Add new User</a>
+    </div>
+    <div class="alert alert-success text-center" th:if="${message}">
+        [[${message}]]
+    </div>
+    <div>
+        <form th:action="@{/logout}" method="post">
+            <input type="submit" value="Sign Out" />
+        </form>
+    </div>
+
+    <div>
+        <form th:action="@{'/page/1'}">
+            <input name="sortField" th:value="${sortField}" type="hidden"/>
+            <input name="sortDir" th:value="${sortDir}" type="hidden"/>
+            Filter: <input id="keyword" name="keyword" required size="50" th:value="${keyword}" type="text"/>
+            &nbsp;
+            <input type="submit" value="Search"/>
+            &nbsp;
+            <input id="btnClear" onclick="clearSearch()" type="button" value="Clear"/>
+        </form>
+    </div>
+
+    <div>
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+            <tr th:if="${keyword != null}">
+                <th>
+                    <a th:href="@{'/page/' + ${currentPage} + '?sortField=id&sortDir=' + ${reverseSortDir}+'&keyword='+${keyword}}">ID</a>
+                </th>
+                <th>
+                    <a th:href="@{'/page/' + ${currentPage} + '?sortField=email&sortDir=' + ${reverseSortDir}+'&keyword='+${keyword}}">E-mail</a>
+                </th>
+                <th>
+                    <a th:href="@{'/page/' + ${currentPage} + '?sortField=firstName&sortDir=' + ${reverseSortDir}+'&keyword='+${keyword}}">First
+                        Name</a>
+                </th>
+                <th>
+                    <a th:href="@{'/page/' + ${currentPage} + '?sortField=lastName&sortDir=' + ${reverseSortDir}+'&keyword='+${keyword}}">
+                        Last Name</a>
+                </th>
+                <th>
+                    <a th:href="@{'/page/' + ${currentPage} + '?sortField=enabled&sortDir=' + ${reverseSortDir}+'&keyword='+${keyword}}">
+                        Enabled</a>
+                </th>
+                <th>
+                    Role
+                </th>
+                <th sec:authorize="hasAuthority('ADMIN')"></th>
+            </tr>
+
+            <tr th:if="${keyword == null}">
+                <th>
+                    <a th:href="@{'/page/' + ${currentPage} + '?sortField=id&sortDir=' + ${reverseSortDir}}">ID</a>
+                </th>
+                <th>
+                    <a th:href="@{'/page/' + ${currentPage} + '?sortField=email&sortDir=' + ${reverseSortDir}}">E-mail</a>
+                </th>
+                <th>
+                    <a th:href="@{'/page/' + ${currentPage} + '?sortField=firstName&sortDir=' + ${reverseSortDir}}">First
+                        Name</a>
+                </th>
+                <th>
+                    <a th:href="@{'/page/' + ${currentPage} + '?sortField=lastName&sortDir=' + ${reverseSortDir}}"> Last
+                        Name</a>
+                </th>
+                <th>
+                    <a th:href="@{'/page/' + ${currentPage} + '?sortField=enabled&sortDir=' + ${reverseSortDir}}">
+                        Enabled</a>
+                </th>
+                <th>
+                    Role
+                </th>
+                <th sec:authorize="hasAuthority('ADMIN')"></th>
+            </tr>
+
+            </thead>
+            <tbody>
+            <th:block th:each="user:${listUsers}">
+                <tr>
+                    <td>[[${user.id}]]</td>
+                    <td>[[${user.email}]]</td>
+                    <td>[[${user.firstName}]]</td>
+                    <td>[[${user.lastName}]]</td>
+                    <td>[[${user.enabled}]]</td>
+                    <td>[[${user.roles}]]</td>
+                    <td sec:authorize="hasAuthority('ADMIN')">
+                        <a class="h4 mr-3" th:href="@{'/users/edit/'+${user.id}}">Edit</a>
+                        <a class="h4" th:href="@{'/users/delete/'+${user.id}}">Delete</a>
+                    </td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+
+    <div><i>Sorted by [[${sortField}]] in [[${sortDir}]] order</i></div>
+
+
+
+    <div th:if="${totalPages >1 and keyword==null }">
+        <div class="row col-sm-10">
+            <div class="col-sm-2">
+                Total Rows: [[${totalItems}]]
+            </div>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-end">
+
+                    <li class="page-item">
+                        <a class="page-link" th:href="@{'/page/1'+'?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}}"
+                           th:if="${currentPage > 1}">First</a>
+                        <span th:unless="${currentPage > 1}" class="page-link">First</span>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" th:href="@{'/page/' + ${currentPage - 1}+'?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}}"
+                           th:if="${currentPage > 1}">Previous</a>
+                        <span th:unless="${currentPage > 1}" class="page-link">Previous</span>
+                    </li>
+
+                    <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+                            <li class="page-item"><a class="page-link" th:href="@{'/page/' + ${i}+'?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}}" th:if="${currentPage != i}">[[${i}]]</a></li>
+                            <div class="page-item active">
+
+                            <span th:unless="${currentPage != i}" class="page-link">[[${i}]]</span>
+                            </div>
+                        </span>
+
+                    <li class="page-item">
+                        <a class="page-link" th:href="@{'/page/' + ${currentPage + 1}+'?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}}"
+                           th:if="${currentPage < totalPages}">Next</a>
+                        <span th:unless="${currentPage < totalPages}" class="page-link">Next</span>
+                    </li>
+                    <li class="page-item">
+                        <a  class="page-link" th:href="@{'/page/' + ${totalPages}+'?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}}"
+                            th:if="${currentPage < totalPages}">Last</a>
+                        <span th:unless="${currentPage < totalPages}"  class="page-link">Last</span>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div th:if="${totalPages >1 and keyword!=null}">
+        <div class="row col-sm-10">
+            <div class="col-sm-2">
+                Total Rows: [[${totalItems}]]
+            </div>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-end">
+
+                    <li class="page-item">
+                        <a class="page-link" th:href="@{'/page/1'+'?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}+'&keyword='+${keyword}}"
+                           th:if="${currentPage > 1}">First</a>
+                        <span th:unless="${currentPage > 1}" class="page-link">First</span>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" th:href="@{'/page/' + ${currentPage - 1}+'?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}+'&keyword='+${keyword}}"
+                           th:if="${currentPage > 1}">Previous</a>
+                        <span th:unless="${currentPage > 1}" class="page-link">Previous</span>
+                    </li>
+
+                    <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+                            <li class="page-item"><a class="page-link" th:href="@{'/page/' + ${i}+'?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}+'&keyword='+${keyword}}" th:if="${currentPage != i}">[[${i}]]</a></li>
+                            <div class="page-item active">
+
+                            <span th:unless="${currentPage != i}" class="page-link">[[${i}]]</span>
+                            </div>
+                        </span>
+
+                    <li class="page-item">
+                        <a class="page-link" th:href="@{'/page/' + ${currentPage + 1}+'?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}+'&keyword='+${keyword}}"
+                           th:if="${currentPage < totalPages}">Next</a>
+                        <span th:unless="${currentPage < totalPages}" class="page-link">Next</span>
+                    </li>
+                    <li class="page-item">
+                        <a  class="page-link" th:href="@{'/page/' + ${totalPages}+'?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}+'&keyword='+${keyword}}"
+                            th:if="${currentPage < totalPages}">Last</a>
+                        <span th:unless="${currentPage < totalPages}"  class="page-link">Last</span>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+</div>
+<script type="text/javascript">
+    function clearSearch() {
+        window.location = "[[@{/users}]]";
+    }
+</script>
+</body>
+</html>
